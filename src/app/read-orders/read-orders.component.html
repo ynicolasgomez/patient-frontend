@@ -1,0 +1,101 @@
+<div class="container">
+  <h2 class="mt-4">{{ editing ? 'Editar orden' : 'Crear nueva orden' }}</h2>
+
+  <!-- Alerta de error -->
+  <div *ngIf="errorMsg" class="alert alert-danger alert-dismissible">
+    {{ errorMsg }}
+    <button class="btn-close" (click)="errorMsg = ''"></button>
+  </div>
+
+  <!-- Formulario -->
+  <form [formGroup]="orderForm" (ngSubmit)="save()" class="card p-3 mb-4">
+
+    <!-- Grupo paciente -->
+    <div formGroupName="patient">
+      <label>Nombre *</label>
+      <input formControlName="firstName" class="form-control" placeholder="Nombre" />
+      <div *ngIf="orderForm.get('patient.firstName')?.invalid && orderForm.get('patient.firstName')?.touched" class="text-danger">
+        Obligatorio
+      </div>
+
+      <label class="mt-3">Apellido *</label>
+      <input formControlName="lastName" class="form-control" placeholder="Apellido" />
+      <div *ngIf="orderForm.get('patient.lastName')?.invalid && orderForm.get('patient.lastName')?.touched" class="text-danger">
+        Obligatorio
+      </div>
+
+      <label class="mt-3">Número de documento *</label>
+      <input formControlName="documentNumber" class="form-control" placeholder="Documento" />
+      <div *ngIf="orderForm.get('patient.documentNumber')?.invalid && orderForm.get('patient.documentNumber')?.touched" class="text-danger">
+        Obligatorio
+      </div>
+
+      <label class="mt-3">Tipo de documento *</label>
+      <input type="number" formControlName="documentTypeId" class="form-control" placeholder="1 = C.C, 2 = T.I, etc." />
+      <div *ngIf="orderForm.get('patient.documentTypeId')?.invalid && orderForm.get('patient.documentTypeId')?.touched" class="text-danger">
+        Obligatorio
+      </div>
+
+      <label class="mt-3">Género *</label>
+      <input type="number" formControlName="genderId" class="form-control" placeholder="1 = Masculino, 2 = Femenino, etc." />
+      <div *ngIf="orderForm.get('patient.genderId')?.invalid && orderForm.get('patient.genderId')?.touched" class="text-danger">
+        Obligatorio
+      </div>
+    </div>
+
+    <!-- Campo fecha -->
+    <label class="mt-3">Fecha de la orden *</label>
+    <input type="date" formControlName="fechaOrden" class="form-control" />
+    <div *ngIf="orderForm.get('fechaOrden')?.errors?.['futureDate']" class="text-danger">
+      No se permite fecha futura
+    </div>
+
+    <!-- Exámenes -->
+    <div class="mt-3">
+      <label>Exámenes *</label>
+      <div *ngFor="let exam of exams.controls; let i = index" class="input-group mb-2">
+        <input [formControl]="getExamControl(i)" class="form-control" placeholder="Nombre del examen" />
+        <button type="button" class="btn btn-outline-danger" (click)="removeExam(i)">×</button>
+      </div>
+
+      <button type="button" class="btn btn-outline-primary btn-sm" (click)="addExam()">+ Añadir examen</button>
+
+      <div *ngIf="exams.errors?.['minArray'] && orderForm.touched" class="text-danger mt-2">
+        Debes ingresar al menos un examen
+      </div>
+    </div>
+
+    <!-- Botones -->
+    <div class="mt-4">
+      <button type="submit" class="btn btn-success me-2" [disabled]="orderForm.invalid">
+        {{ editing ? 'Actualizar' : 'Crear' }}
+      </button>
+      <button type="button" class="btn btn-secondary" (click)="cancel()" *ngIf="editing">Cancelar</button>
+    </div>
+  </form>
+
+  <!-- Tabla de órdenes -->
+  <h3>Órdenes registradas</h3>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Paciente</th>
+        <th>Fecha</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let order of orders">
+        <td>{{ order.id }}</td>
+        <td>{{ getPatientName(order.patientId) }}</td>
+    <!--<td>{{ order.patientId }}</td>-->
+        <td>{{ order.fechaOrden | date:'short' }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Spinner -->
+  <div class="text-center mt-3" *ngIf="loading">
+    <div class="spinner-border"></div>
+  </div>
+</div>

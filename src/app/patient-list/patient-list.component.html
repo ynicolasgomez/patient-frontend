@@ -1,0 +1,104 @@
+<div class="container">
+  <h2 class="text-center mt-4 mb-4">Gestión de Pacientes</h2>
+  <div class="d-flex align-items-center mb-3 gap-3">
+  <button class="btn btn-primary" (click)="showFormEdit()">Agregar nuevo paciente</button>
+
+  <input
+    type="text"
+    class="form-control w-50"
+    placeholder="Buscar por nombre, apellido o documento"
+    [(ngModel)]="searchTerm"
+    (input)="searchPatients()" />
+</div>
+
+  <table class="table table-hover table-bordered">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nombres</th>
+        <th>Apellidos</th>
+        <th>Numero Documento</th>
+        <th>Tipo Documento</th>
+        <th>Género</th>
+        <th class="text-center">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let patient of patients">
+        <td>{{ patient.id }}</td>
+        <td>{{ patient.firstName }}</td>
+        <td>{{ patient.lastName }}</td>
+        <td>{{ patient.documentNumber }}</td>
+        <td>{{ getDocumentTypeName(patient.documentTypeId) }}</td>
+        <td>{{ getGenderName(patient.genderId) }}</td>
+        <td class="text-center d-flex justify-content-center">
+          <button class="btn btn-warning me-2" (click)="showFormEdit(patient)">Editar</button>
+          <button class="btn btn-danger" (click)="delete(patient.id)">Eliminar</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+<form *ngIf="viewForm" [formGroup]="formPatient" (ngSubmit)="savePatient()">
+  <!-- Nombre -->
+  <div class="mb-3">
+    <label for="firstName" class="form-label">Nombre</label>
+    <input id="firstName" formControlName="firstName" class="form-control"
+      [class.is-invalid]="formPatient.get('firstName')?.invalid && formPatient.get('firstName')?.touched" />
+    <div class="invalid-feedback" *ngIf="formPatient.get('firstName')?.errors?.['required']">
+      El nombre es requerido.
+    </div>
+  </div>
+
+  <!-- Apellido -->
+  <div class="mb-3">
+    <label for="lastName" class="form-label">Apellido</label>
+    <input id="lastName" formControlName="lastName" class="form-control"
+      [class.is-invalid]="formPatient.get('lastName')?.invalid && formPatient.get('lastName')?.touched" />
+    <div class="invalid-feedback" *ngIf="formPatient.get('lastName')?.errors?.['required']">
+      El apellido es requerido.
+    </div>
+  </div>
+
+  <!-- Número de Documento -->
+  <div class="mb-3">
+    <label for="documentNumber" class="form-label">Número Documento</label>
+    <input id="documentNumber" formControlName="documentNumber" class="form-control"
+      [class.is-invalid]="formPatient.get('documentNumber')?.invalid && formPatient.get('documentNumber')?.touched" />
+    <div class="invalid-feedback" *ngIf="formPatient.get('documentNumber')?.errors?.['required']">
+      El número de documento es requerido.
+    </div>
+  </div>
+
+  <!-- Tipo de documento -->
+  <div class="mb-3">
+    <label for="documentTypeId" class="form-label">Tipo de documento</label>
+    <select id="documentTypeId" formControlName="documentTypeId" class="form-control"
+      [class.is-invalid]="formPatient.get('documentTypeId')?.invalid && formPatient.get('documentTypeId')?.touched">
+      <option [ngValue]="null">Seleccione...</option>
+      <option *ngFor="let type of documentTypes" [ngValue]="type.id">{{ type.name }}</option>
+    </select>
+    <div class="invalid-feedback" *ngIf="formPatient.get('documentTypeId')?.errors?.['required']">
+      El tipo de documento es obligatorio.
+    </div>
+  </div>
+
+  <!-- Género -->
+  <div class="mb-3">
+    <label for="genderId" class="form-label">Género</label>
+    <select id="genderId" formControlName="genderId" class="form-control"
+      [class.is-invalid]="formPatient.get('genderId')?.invalid && formPatient.get('genderId')?.touched">
+      <option [ngValue]="null">Seleccione un género</option>
+      <option *ngFor="let g of gender" [ngValue]="g.id">{{ g.name }}</option>
+    </select>
+    <div class="invalid-feedback" *ngIf="formPatient.get('genderId')?.errors?.['required']">
+      El género es obligatorio.
+    </div>
+  </div>
+
+  <button type="submit" [ngClass]="formPatient.get('id')?.value ? 'btn btn-warning' : 'btn btn-success'">
+    {{ isCreate ? 'Crear' : 'Actualizar' }}
+  </button>
+</form>
+
+</div>
